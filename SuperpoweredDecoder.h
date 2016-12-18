@@ -13,7 +13,11 @@ struct stemsLimiter;
 #define SUPERPOWEREDDECODER_NETWORK_ERROR 4
 
 typedef enum SuperpoweredDecoder_Kind {
-    SuperpoweredDecoder_MP3, SuperpoweredDecoder_AAC, SuperpoweredDecoder_AIFF, SuperpoweredDecoder_WAV, SuperpoweredDecoder_MediaServer
+    SuperpoweredDecoder_MP3,
+    SuperpoweredDecoder_AAC,
+    SuperpoweredDecoder_AIFF,
+    SuperpoweredDecoder_WAV,
+    SuperpoweredDecoder_MediaServer
 } SuperpoweredDecoder_Kind;
 
 /**

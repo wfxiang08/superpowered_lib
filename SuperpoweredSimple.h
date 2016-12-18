@@ -235,6 +235,7 @@ void SuperpoweredDeInterleaveAdd(float *input, float *left, float *right, unsign
 /**
  @fn SuperpoweredHasNonFinite(float *buffer, unsigned int numberOfValues);
  @brief Checks if the samples has non-valid samples, such as infinity or NaN (not a number).
+        这个也是一个很头疼的问题，NaN, Infinity是如何生成的呢?
  
  @param buffer The buffer to check.
  @param numberOfValues Number of values in buffer. For stereo buffers, multiply by two!

@@ -22,6 +22,7 @@ public:
  
  @param enable Enable/disable the sustained performance mode.
 */
+    // 使CPU工作在最佳状态
     static void setSustainedPerformanceMode(bool enable);
 };
 

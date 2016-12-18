@@ -7,6 +7,8 @@ struct bufferPoolInternals;
 struct pointerListInternals;
 struct SuperpoweredAudiobufferlistElement;
 
+// 内存的管理
+// 这是处理效率高的原因之一
 /**
  @brief This object manages an audio buffer pool.
  

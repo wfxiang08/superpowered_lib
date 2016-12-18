@@ -1,4 +1,4 @@
-#ifndef Header_SuperpoweredFilter
+    #ifndef Header_SuperpoweredFilter
 #define Header_SuperpoweredFilter
 
 #include "SuperpoweredFX.h"

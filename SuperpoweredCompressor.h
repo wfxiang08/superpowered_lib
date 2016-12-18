@@ -4,6 +4,14 @@
 #include "SuperpoweredFX.h"
 struct compressorInternals;
 
+//compressor.attackTime = 0.13f;
+//compressor.expansionRatio = 3.6f;
+//compressor.expansionThreshold = -55;
+//compressor.headRoom = 40;
+//compressor.masterGain = 4;
+//compressor.releaseTime = 1.38f;
+//compressor.threshold = -25;
+
 /**
  @brief Compressor with 0 latency.
  
@@ -20,19 +28,21 @@ struct compressorInternals;
  */
 class SuperpoweredCompressor: public SuperpoweredFX {
 public:
-// READ-WRITE parameters
+    // READ-WRITE parameters
     float inputGainDb;
     float outputGainDb;
     float wet;
+
     float attackSec;
     float releaseSec;
     float ratio;
-    float thresholdDb;
+    float thresholdDb
+    ;
     float hpCutOffHz;
 
-/**
- @brief Turns the effect on/off.
-*/
+    /**
+        @brief Turns the effect on/off.
+    */
     void enable(bool flag); // Use this to turn it on/off.
 
 /**

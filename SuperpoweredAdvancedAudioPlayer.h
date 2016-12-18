@@ -82,32 +82,20 @@ typedef void (* SuperpoweredAdvancedAudioPlayerCallback) (void *clientData, Supe
 
 /**
  @brief High performance advanced audio player with:
- 
- - time-stretching and pitch shifting,
- 
+ - time-stretching and pitch shifting, (变调算法）
  - beat and tempo sync,
- 
  - scratching,
- 
  - tempo bend,
- 
  - looping,
- 
  - slip mode,
- 
  - fast seeking (cached points),
- 
  - momentum and jog wheel handling,
- 
  - 0 latency, real-time operation,
- 
  - low memory usage (5300 kb plus 200 kb for every cached point),
- 
  - thread safety (all methods are thread-safe),
- 
  - direct iPod music library access.
  
- Can not be used for offline processing. Supported file types:
+ Can not be used for offline processing. （不能用于离线处理?） Supported file types:
  - Stereo or mono pcm WAV and AIFF (16-bit int, 24-bit int, 32-bit int or 32-bit IEEE float).
  - MP3 (all kind).
  - AAC-LC in M4A container (iTunes).
@@ -125,8 +113,14 @@ typedef void (* SuperpoweredAdvancedAudioPlayerCallback) (void *clientData, Supe
  @param playing Indicates if the player is playing or paused. Read only.
  @param tempo The current tempo. Read only.
  @param masterTempo Time-stretching is enabled or not. Read only.
+
+ // -12~12
+ // SemiTone: Tone
+ // Cents: 1/100 SemiTone
+ // 音调
  @param pitchShift Note offset from -12 to 12. 0 means no pitch shift. Read only.
  @param pitchShiftCents Pitch shift cents, from -1200 (one octave down) to 1200 (one octave up). 0 means no pitch shift. Read only.
+
  @param bpm Must be correct for syncing. There is no auto-bpm detection inside. Read only.
  @param currentBpm The actual bpm of the track (as bpm changes with the current tempo). Read only.
  @param slip If enabled, scratching or reverse will maintain the playback position as if you had never entered those modes. Read only.
@@ -219,7 +213,9 @@ public:
  @param cachedPointCount Sets how many positions can be cached in the memory. Jumping to a cached point happens with 0 latency. Loops are automatically cached.
  @param internalBufferSizeSeconds The number of seconds to buffer internally for playback and cached points. Minimum 2, maximum 60. Default: 2.
 */
-    SuperpoweredAdvancedAudioPlayer(void *clientData, SuperpoweredAdvancedAudioPlayerCallback callback, unsigned int samplerate, unsigned int cachedPointCount, unsigned int internalBufferSizeSeconds = 2);
+    SuperpoweredAdvancedAudioPlayer(void *clientData, SuperpoweredAdvancedAudioPlayerCallback callback,
+                                    unsigned int samplerate, unsigned int cachedPointCount,
+                                    unsigned int internalBufferSizeSeconds = 2);
     ~SuperpoweredAdvancedAudioPlayer();
 /**
  @brief Opens a new audio file, with playback paused. 
@@ -363,7 +359,7 @@ public:
 /**
  @brief Sets the relative tempo of the playback.
  
- @param tempo 1.0f is "original speed".
+ @param tempo 1.0f is "original speed". （拍子， 速度)
  @param masterTempo Enable or disable time-stretching.
  */
     void setTempo(double tempo, bool masterTempo);
@@ -375,6 +371,7 @@ public:
     void setPitchShift(int pitchShift);
     
 /**
+ 注意不要使用这个方法，CPU消耗太大
  @brief Sets the pitch shift value with greater precision. Calling this method requires magnitudes more CPU than setPitchShift.
  
  @param pitchShiftCents Limited to >= -1200 and <= 1200. 0 means no pitch shift.
@@ -457,7 +454,8 @@ public:
  @param masterBpm A bpm value to sync with. Use 0.0f for no syncing.
  @param masterMsElapsedSinceLastBeat How many milliseconds elapsed since the last beat on the other stuff we are syncing to. Use -1.0 to ignore.
 */
-    bool process(float *buffer, bool bufferAdd, unsigned int numberOfSamples, float volume = 1.0f, double masterBpm = 0.0f, double masterMsElapsedSinceLastBeat = -1.0);
+    bool process(float *buffer, bool bufferAdd, unsigned int numberOfSamples,
+                 float volume = 1.0f, double masterBpm = 0.0f, double masterMsElapsedSinceLastBeat = -1.0);
 
 /**
  @brief Processes the audio, multi-channel version.
@@ -471,7 +469,8 @@ public:
  @param masterBpm A bpm value to sync with. Use 0.0f for no syncing.
  @param masterMsElapsedSinceLastBeat How many milliseconds elapsed since the last beat on the other stuff we are syncing to. Use -1.0 to ignore.
  */
-    bool processMulti(float **buffers, bool *bufferAdds, unsigned int numberOfSamples, float *volumes, double masterBpm = 0.0f, double masterMsElapsedSinceLastBeat = -1.0);
+    bool processMulti(float **buffers, bool *bufferAdds, unsigned int numberOfSamples,
+                      float *volumes, double masterBpm = 0.0f, double masterMsElapsedSinceLastBeat = -1.0);
     
 private:
     SuperpoweredAdvancedAudioPlayerInternals *internals;

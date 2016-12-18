@@ -5,6 +5,8 @@ struct clipperInternals;
 
 /**
  @brief Hard knee clipping with 0 latency.
+
+ Limiter等实现?
  
  It doesn't allocate any internal buffers and needs just a few bytes of memory.
  
@@ -13,7 +15,7 @@ struct clipperInternals;
 */
 class SuperpoweredClipper {
 public:
-    float thresholdDb;
+    float thresholdDb; // 取值返回：-100 ~ 0
     float maximumDb;
 
     SuperpoweredClipper();
