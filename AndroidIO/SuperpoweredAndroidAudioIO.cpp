@@ -99,9 +99,13 @@ static void stopQueues(SuperpoweredAndroidAudioIOInternals *internals) {
 static void SuperpoweredAndroidAudioIO_InputCallback(SLAndroidSimpleBufferQueueItf caller,
                                                      void *pContext) {
 
+    // Callback在什么时候调用呢?
+    // 处理完毕它内部的buffer之后，调用
+    // 因此在初始化时，会事先给他一个buffer; 然后再InputCallback中再次给一个buffer
+
     SuperpoweredAndroidAudioIOInternals *internals = (SuperpoweredAndroidAudioIOInternals *)pContext;
 
-    //
+    // 获取一个buffer, 并且 writeBufferIndex切换到下一个位置，表示当前的buffer已经被占用
     short int *buffer = internals->fifobuffer + internals->writeBufferIndex * internals->bufferStep;
     if (internals->writeBufferIndex < internals->numBuffers - 1) {
         internals->writeBufferIndex++;
@@ -109,18 +113,41 @@ static void SuperpoweredAndroidAudioIO_InputCallback(SLAndroidSimpleBufferQueueI
         internals->writeBufferIndex = 0;
     }
 
+    // 如果没有信号源，那么: buffer是否需要silence呢?
+    // 如果不输出到耳机，那么整个信号由Mic端来驱动；
+    //       如果: latencySamples == 0, 则readBufferIndex和writeBufferIndex应该总是同步的
+    // 如果输出到耳机，则由Phone端来驱动
+    //
     if (!internals->hasOutput) {
         // When there is no audio output configured.
+
+        // writeBufferIndex 下一个待输入数据的位置
+        // readBufferIndex  下一个待读取数据的位置
+        // Invariant: readBufferIndex <= writeBufferIndex
+        // 例如：
+        // readBufferIndex  writeBufferIndex
+        //      0                  0           初始状态
+        //      0                  1           表示从mic读取一个buffer， 然后 readBufferIndex 就跟随 writeBufferIndex 变化
+        // 如果没有output, 那么就由输入来驱动，Audio模型为push
+        //   buffersAvailable 作用就是简单地配合 latencySamples 来完成数据的delay处理
+        // 如果有output, 那Audio模型为pull; 这里的callback就只负责: writeBufferIndex 的管理
+        //
         int buffersAvailable = internals->writeBufferIndex - internals->readBufferIndex;
         if (buffersAvailable < 0) {
             buffersAvailable = internals->numBuffers + buffersAvailable;
         }
 
         // if we have enough audio input available
+        // latencySamples 可以假设为0, 则
         if (buffersAvailable * internals->buffersize >= internals->latencySamples) {
+            short int *readBuffer = internals->fifobuffer + internals->readBufferIndex * internals->bufferStep;
+
+            // readBuffer的数据
             internals->callback(internals->clientdata,
-                                internals->fifobuffer + internals->readBufferIndex * internals->bufferStep,
-                                internals->buffersize, internals->samplerate);
+                                readBuffer,
+                                internals->buffersize,
+                                internals->samplerate);
+
             if (internals->readBufferIndex < internals->numBuffers - 1) {
                 internals->readBufferIndex++;
             } else {
@@ -128,6 +155,11 @@ static void SuperpoweredAndroidAudioIO_InputCallback(SLAndroidSimpleBufferQueueI
             }
         };
     }
+
+    // 不同的caller, 代表不同数据的意义
+    // 采集到的信号交给:  SLAndroidSimpleBufferQueueItf
+    // buffer待输入数据，writeBufferIndex 表示下一个待输入数据的buffer index
+    //
     (*caller)->Enqueue(caller, buffer, (SLuint32)internals->buffersize * 4);
 }
 
@@ -149,15 +181,19 @@ static void SuperpoweredAndroidAudioIO_OutputCallback(SLAndroidSimpleBufferQueue
         buffersAvailable = internals->numBuffers + buffersAvailable;
     }
 
-    // 如何准备输出呢?
+    // 驱动力
+    // Queque, Thread
+    // 如果有输出，则Audio模型为pull, 输入端的Queue负责读取数据到queue中，然后改写: writeBufferIndex
+
     short int *output = internals->fifobuffer + internals->readBufferIndex * internals->bufferStep;
 
     if (internals->hasInput) {
         // If audio input is enabled.
         // if we have enough audio input available
+        // 立马需要处理的数据在: readBufferIndex 处
         if (buffersAvailable * internals->buffersize >= internals->latencySamples) {
 
-            // 如果通过callback获取数据失败
+            // 如果没有改写output，则需要主动silence这个信号
             if (!internals->callback(internals->clientdata, output,
                                      internals->buffersize, internals->samplerate)) {
                 // 将输出设置为silence
@@ -172,9 +208,14 @@ static void SuperpoweredAndroidAudioIO_OutputCallback(SLAndroidSimpleBufferQueue
             output = NULL;
         }
     } else {
+        // 压根就没有另外一个callback, 所有的数据流都由当前分支来驱动
         // If audio input is not enabled.
+        // 如果没有Mic输入，则整个事件靠输出来驱动
+        // writeBufferIndex和readBufferIndex之前的关系还是需要清晰地维护
+        // 
         short int *audioToGenerate = internals->fifobuffer + internals->writeBufferIndex * internals->bufferStep;
 
+        // 先生成数据再说
         if (!internals->callback(internals->clientdata, audioToGenerate, internals->buffersize, internals->samplerate)) {
             memset(audioToGenerate, 0, (size_t)internals->buffersize * 4);
             internals->silenceSamples += internals->buffersize;
@@ -233,8 +274,11 @@ SuperpoweredAndroidAudioIO::SuperpoweredAndroidAudioIO(int samplerate,
     memset(internals, 0, sizeof(SuperpoweredAndroidAudioIOInternals));
     internals->samplerate = samplerate;
     internals->buffersize = buffersize;
-    internals->clientdata = clientdata;
+
+    // clientdata & callback
     internals->callback = callback;
+    internals->clientdata = clientdata;
+
     internals->hasInput = enableInput;
     internals->hasOutput = enableOutput;
     internals->foreground = true;
@@ -393,6 +437,8 @@ SuperpoweredAndroidAudioIO::SuperpoweredAndroidAudioIO(int samplerate,
         (*internals->inputBufferQueueInterface)->RegisterCallback(internals->inputBufferQueueInterface,
                                                                   SuperpoweredAndroidAudioIO_InputCallback,
                                                                   internals);
+
+        // 注意: 这两个Queue对fifobuffer的使用, 如何管理呢？
         (*internals->inputBufferQueueInterface)->Enqueue(internals->inputBufferQueueInterface,
                                                          internals->fifobuffer, (SLuint32)buffersize * 4);
     };
