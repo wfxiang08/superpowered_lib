@@ -17,11 +17,11 @@
 class SuperpoweredCPU {
 public:
     static int sustainedPerformanceMode;
-/**
- @brief Enable/disable the sustained performance mode. This method is thread-safe.
+    /**
+     @brief Enable/disable the sustained performance mode. This method is thread-safe.
  
- @param enable Enable/disable the sustained performance mode.
-*/
+     @param enable Enable/disable the sustained performance mode.
+    */
     // 使CPU工作在最佳状态
     static void setSustainedPerformanceMode(bool enable);
 };
