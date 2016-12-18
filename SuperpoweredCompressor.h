@@ -45,42 +45,42 @@ public:
     */
     void enable(bool flag); // Use this to turn it on/off.
 
-/**
- @brief Create a compressor instance with the current sample rate value.
+    /**
+     @brief Create a compressor instance with the current sample rate value.
 
- Enabled is false by default, use enable(true) to enable.
-*/
+     Enabled is false by default, use enable(true) to enable.
+    */
     SuperpoweredCompressor(unsigned int samplerate);
     ~SuperpoweredCompressor();
 
-/**
- @brief Sets the sample rate.
+    /**
+     @brief Sets the sample rate.
 
- @param samplerate 44100, 48000, etc.
-*/
+     @param samplerate 44100, 48000, etc.
+    */
     void setSamplerate(unsigned int samplerate);
 
-/**
- @brief Reset all internals, sets the instance as good as new and turns it off.
- */
+    /**
+     @brief Reset all internals, sets the instance as good as new and turns it off.
+     */
     void reset();
 
-/**
- @return Returns with the maximum gain reduction in decibels since the last getGainReductionDb() call.
+    /**
+     @return Returns with the maximum gain reduction in decibels since the last getGainReductionDb() call.
  
- This method uses the log10f function, which is CPU intensive. Call it when you must update your user interface.
- */
+     This method uses the log10f function, which is CPU intensive. Call it when you must update your user interface.
+     */
     float getGainReductionDb();
 
-/**
- @brief Processes interleaved audio.
+    /**
+     @brief Processes interleaved audio.
 
- @return Put something into output or not.
+     @return Put something into output or not.
 
- @param input 32-bit interleaved stereo input buffer. Can point to the same location with output (in-place processing).
- @param output 32-bit interleaved stereo output buffer. Can point to the same location with input (in-place processing).
- @param numberOfSamples Should be 32 minimum.
-*/
+     @param input 32-bit interleaved stereo input buffer. Can point to the same location with output (in-place processing).
+     @param output 32-bit interleaved stereo output buffer. Can point to the same location with input (in-place processing).
+     @param numberOfSamples Should be 32 minimum.
+    */
     bool process(float *input, float *output, unsigned int numberOfSamples);
 
 private:
