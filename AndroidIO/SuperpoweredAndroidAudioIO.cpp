@@ -212,7 +212,7 @@ static void SuperpoweredAndroidAudioIO_OutputCallback(SLAndroidSimpleBufferQueue
         // If audio input is not enabled.
         // 如果没有Mic输入，则整个事件靠输出来驱动
         // writeBufferIndex和readBufferIndex之前的关系还是需要清晰地维护
-        // 
+        //
         short int *audioToGenerate = internals->fifobuffer + internals->writeBufferIndex * internals->bufferStep;
 
         // 先生成数据再说

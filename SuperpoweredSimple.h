@@ -6,7 +6,7 @@
  @brief Simple fast utility functions for transforming audio.
  */
 
-
+// 定义了各种常用的buffer的操作，例如: The Amazaing Audio Engine2中的各种Utils
 /**
  @fn SuperpoweredVolume(float *input, float *output, float volumeStart, float volumeEnd, unsigned int numberOfSamples);
  @brief Applies volume on a single stereo interleaved buffer.

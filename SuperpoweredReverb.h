@@ -19,12 +19,27 @@ struct reverbInternals;
 class SuperpoweredReverb: public SuperpoweredFX {
 public:
     // READ ONLY parameters, don't set them directly, use the methods below.
-    float dry, wet;
+    float dry;
+    float wet;
     float mix;
     float width;
     float damp;
     float roomSize;
-    
+
+
+// 来自Audacity Reverb.cpp
+//    double mWetGain;
+//    double mDryGain;
+//    double mStereoWidth;
+//    double mHfDamping;
+//    double mRoomSize;
+//
+//    double mPreDelay;
+//    double mReverberance;
+//    double mToneLow;
+//    double mToneHigh;
+//    bool mWetOnly;
+
     /**
      @brief You can set dry and wet independently, but don't use setMix in this case.
  

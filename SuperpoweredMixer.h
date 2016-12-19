@@ -7,8 +7,10 @@ struct monoMixerInternals;
 /**
  @brief Mixer and splitter.
  
- Mixes max. 4 interleaved stereo inputs together. Output can be interleaved or non-interleaved (split).
- Separate input channel levels (good for gain and pan), separate output channel levels (master gain and pan).
+ Mixes max.
+ 1. 4 interleaved stereo inputs together.
+ 2. Output can be interleaved or non-interleaved (split).
+ 3. Separate input channel levels (good for gain and pan), separate output channel levels (master gain and pan).
  Returns maximum values for metering.(测量)
  
  One instance allocates just a few bytes of memory.
@@ -24,31 +26,52 @@ public:
     /**
      @brief Mixes max. 4 interleaved(交叉存取) stereo inputs into a stereo output.
  
-     @param inputs Four pointers to stereo interleaved input buffers. Any pointer can be NULL.
+     @param inputs
+          Four pointers to stereo interleaved input buffers. Any pointer can be NULL.
+          输入信号最多为4路，交叉格式的信号
      @param outputs
           If outputs[1] is NULL, output is interleaved stereo in outputs[0].
-          If outputs[1] is not NULL, output is non-interleaved (left side in outputs[0], right side in outputs[1]).
+          If outputs[1] is not NULL, output is non-interleaved (left side in outputs[0],
+                        right side in outputs[1]).
+          输出信号是否为interleaved格式
      @param inputLevels
-          Input volume level for each channel. Value changes between consecutive processes are automatically smoothed.
+          Input volume level for each channel. Value changes between consecutive processes
+          are automatically smoothed.
+          音量的处理
      @param outputLevels
-          Output levels [left, right]. Value changes between consecutive processes are automatically smoothed.
-     @param inputMeters Returns with the maximum values for metering. Can be NULL.
-     @param outputMeters Returns with the maximum values for metering. Can be NULL.
+          Output levels [left, right]. Value changes between consecutive processes
+          are automatically smoothed.
+     @param inputMeters
+           Returns with the maximum values for metering. Can be NULL.
+     @param outputMeters
+           Returns with the maximum values for metering. Can be NULL.
      @param numberOfSamples
-        The number of samples to process. Minimum 2, maximum 2048, must be exactly divisible with 2.
+           采样数的要求
+           The number of samples to process. Minimum 2, maximum 2048,
+           must be exactly divisible with 2.
      */
-    void process(float *inputs[4], float *outputs[2], float inputLevels[8], float outputLevels[2],
-                 float inputMeters[8], float outputMeters[2], unsigned int numberOfSamples);
+    void process(float *inputs[4], float *outputs[2],
+                 float inputLevels[8],
+                 float outputLevels[2],
+
+                 float inputMeters[8],
+                 float outputMeters[2],
+                 unsigned int numberOfSamples);
 
     /**
-     @brief Mixes max. 4 interleaved stereo channels into a stereo output and changes volume in the channels as well.
+     @brief Mixes max. 4 interleaved stereo channels into a stereo output and changes
+     volume in the channels as well.
 
      @param channels Four pointers to stereo interleaved input/output buffers.
             Every pointer should not be NULL. 都不能为空?
-     @param outputs If outputs[1] is NULL, output is interleaved stereo in outputs[0]. If outputs[1] is not NULL, output is non-interleaved (left side in outputs[0], right side in outputs[1]).
+     @param outputs If outputs[1] is NULL, output is interleaved stereo in outputs[0].
+                    If outputs[1] is not NULL, output is non-interleaved (left side in outputs[0],
+                    right side in outputs[1]).
      @param channelSwitches On/off switches for each channel.
-     @param channelOutputLevels Volume for each channel output. Value changes between consecutive processes are automatically smoothed.
-     @param numberOfSamples The number of samples to process. Minimum 2, maximum 2048, must be exactly divisible with 2.
+     @param channelOutputLevels Volume for each channel output. Value changes between consecutive
+            processes are automatically smoothed.
+     @param numberOfSamples The number of samples to process. Minimum 2, maximum 2048,
+            must be exactly divisible with 2.
     */
     void processPFL(float *channels[4], float *outputs[2], bool channelSwitches[4], float channelOutputLevels[4], unsigned int numberOfSamples);
 

@@ -34,6 +34,8 @@ struct SuperpoweredRecorderInternals;
 
  One instance allocates around 270k memory when recording starts. Use this class in a 
  live audio processing loop, where directly writing to a disk is not recommended. 
+ 
+ 离线处理
  For offline processing, use the createWAV, fwrite and closeWAV functions 
  instead of a SuperpoweredRecorder.
  */
@@ -50,6 +52,7 @@ public:
     SuperpoweredRecorder(const char *tempPath, unsigned int samplerate, 
                          unsigned int minSeconds = 1);
     ~SuperpoweredRecorder();
+    
     /**
      @brief Starts recording.
      @return False, if another recording is still active or not closed yet.
